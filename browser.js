@@ -642,7 +642,7 @@ function start(es, url, options) {
   var wasActivity = false;
   var headers = options != undefined && options.headers != undefined ? JSON.parse(JSON.stringify(options.headers)) : undefined;
   var CurrentTransport = options != undefined && options.Transport != undefined ? options.Transport : getBestTransport();
-  var xhr = isFetchSupported && !(options != undefined && options.Transport != undefined) ? undefined : new XHRWrapper(new CurrentTransport());
+  var xhr = isFetchSupported && !(options != undefined && (options.Transport != undefined || options.forceXhr)) ? undefined : new XHRWrapper(new CurrentTransport());
   var transport = xhr == undefined ? new FetchTransport() : new XHRTransport();
   var cancelFunction = undefined;
   var timeout = 0;
