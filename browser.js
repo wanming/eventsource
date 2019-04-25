@@ -15,6 +15,7 @@ var Response = window.Response;
 var TextDecoder = window.TextDecoder;
 var TextEncoder = window.TextEncoder;
 var AbortController = window.AbortController;
+var HEARTBEAT_TIMEOUT = 5000
 
 if (Object.create == undefined) {
   Object.create = function (C) {
@@ -344,9 +345,9 @@ XHRWrapper.prototype.getAllResponseHeaders = function () {
 XHRWrapper.prototype.send = function () {
   // loading indicator in Safari < ? (6), Chrome < 14, Firefox
   if (!("ontimeout" in XMLHttpRequest.prototype) &&
-      document != undefined &&
-      document.readyState != undefined &&
-      document.readyState !== "complete") {
+    document != undefined &&
+    document.readyState != undefined &&
+    document.readyState !== "complete") {
     var that = this;
     that._sendTimeout = setTimeout(function () {
       that._sendTimeout = 0;
@@ -397,10 +398,25 @@ function XHRTransport() {
 XHRTransport.prototype.open = function (xhr, onStartCallback, onProgressCallback, onFinishCallback, url, withCredentials, headers) {
   xhr.open("GET", url);
   var offset = 0;
+  var abortTimeout
+
+  function setAbortTimeout () {
+    abortTimeout = setTimeout(function () {
+      xhr.abort()
+    }, HEARTBEAT_TIMEOUT)
+  }
+
+  setAbortTimeout()
   xhr.onprogress = function () {
     var responseText = xhr.responseText;
     var chunk = responseText.slice(offset);
     offset += chunk.length;
+
+    if (chunk.length > 0) {
+      clearTimeout(abortTimeout)
+      setAbortTimeout()
+    }
+
     onProgressCallback(chunk);
   };
   xhr.onreadystatechange = function () {
@@ -453,7 +469,19 @@ FetchTransport.prototype.open = function (xhr, onStartCallback, onProgressCallba
     });
     return new Promise(function (resolve, reject) {
       var readNextChunk = function () {
-        reader.read().then(function (result) {
+        new Promise((res, rej) => {
+          var timer = setTimeout(() => {
+            rej(new Error('Reader read timeout'))
+            timer = null
+          }, HEARTBEAT_TIMEOUT)
+
+          reader.read().then(result => {
+            if (timer) {
+              clearTimeout(timer)
+              res(result)
+            }
+          }, rej)
+        }).then(function (result) {
           if (result.done) {
             //Note: bytes in textDecoder are ignored
             resolve(undefined);

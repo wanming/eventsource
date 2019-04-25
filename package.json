@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/wanming/eventsource#readme",
   "dependencies": {
-    "event-source-polyfill": "^1.0.5",
     "eventsource": "^1.0.7"
   },
   "browser": {
