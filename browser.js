@@ -469,13 +469,13 @@ FetchTransport.prototype.open = function (xhr, onStartCallback, onProgressCallba
     });
     return new Promise(function (resolve, reject) {
       var readNextChunk = function () {
-        new Promise((res, rej) => {
-          var timer = setTimeout(() => {
+        new Promise(function (res, rej) {
+          var timer = setTimeout(function () {
             rej(new Error('Reader read timeout'))
             timer = null
           }, HEARTBEAT_TIMEOUT)
 
-          reader.read().then(result => {
+          reader.read().then(function (result) {
             if (timer) {
               clearTimeout(timer)
               res(result)
