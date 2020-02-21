@@ -431,6 +431,7 @@ function XHRTransport() {}
 
 XHRTransport.prototype.open = function(
   xhr,
+  onBeforeStartCallBack,
   onStartCallback,
   onProgressCallback,
   onFinishCallback,
@@ -441,6 +442,10 @@ XHRTransport.prototype.open = function(
   xhr.open("GET", url);
   var offset = 0;
   var abortTimeout;
+
+  onBeforeStartCallBack(function() {
+    xhr.abort();
+  });
 
   function setAbortTimeout() {
     abortTimeout = setTimeout(function() {
@@ -501,6 +506,7 @@ function FetchTransport() {}
 
 FetchTransport.prototype.open = function(
   xhr,
+  onBeforeStartCallBack,
   onStartCallback,
   onProgressCallback,
   onFinishCallback,
@@ -511,6 +517,11 @@ FetchTransport.prototype.open = function(
   var controller = new AbortController();
   var signal = controller.signal; // see #120
   var textDecoder = new TextDecoder();
+
+  onBeforeStartCallBack(function() {
+    controller.abort();
+  });
+
   fetch(url, {
     headers: headers,
     credentials: withCredentials ? "include" : "same-origin",
@@ -768,6 +779,10 @@ function start(es, url, options) {
   var state = FIELD_START;
   var fieldStart = 0;
   var valueStart = 0;
+
+  var onBeforeStart = function(cancel) {
+    cancelFunction = cancel
+  }
 
   var onStart = function(status, statusText, contentType, headers, cancel) {
     es.status = status;
