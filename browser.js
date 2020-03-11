@@ -9,7 +9,7 @@ var GLOBAL;
 if (typeof self !== "undefined") {
   GLOBAL = self;
 } else {
-  GLOBAL = GLOBAL;
+  GLOBAL = window;
 }
 
 var setTimeout = GLOBAL.setTimeout.bind(GLOBAL);
