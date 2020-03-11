@@ -4,17 +4,25 @@
  * https://github.com/Yaffle/EventSource/
  */
 
-var setTimeout = window.setTimeout.bind(window);
-var clearTimeout = window.clearTimeout.bind(window);
-var XMLHttpRequest = window.XMLHttpRequest;
-var XDomainRequest = window.XDomainRequest;
-var document = window.document;
-var Promise = window.Promise;
-var fetch = window.fetch.bind(window);
-var Response = window.Response;
-var TextDecoder = window.TextDecoder;
-var TextEncoder = window.TextEncoder;
-var AbortController = window.AbortController;
+var GLOBAL;
+
+if (typeof self !== "undefined") {
+  GLOBAL = self;
+} else {
+  GLOBAL = GLOBAL;
+}
+
+var setTimeout = GLOBAL.setTimeout.bind(GLOBAL);
+var clearTimeout = GLOBAL.clearTimeout.bind(GLOBAL);
+var XMLHttpRequest = GLOBAL.XMLHttpRequest;
+var XDomainRequest = GLOBAL.XDomainRequest;
+var document = GLOBAL.document;
+var Promise = GLOBAL.Promise;
+var fetch = GLOBAL.fetch.bind(GLOBAL);
+var Response = GLOBAL.Response;
+var TextDecoder = GLOBAL.TextDecoder;
+var TextEncoder = GLOBAL.TextEncoder;
+var AbortController = GLOBAL.AbortController;
 var HEARTBEAT_TIMEOUT = 5000;
 
 if (Object.create == undefined) {
